@@ -44,8 +44,12 @@ namespace ChatSounds
             {
                 if (text.Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
                 {
+                    // get world entity
+                    CWorld? worldEnt = Utilities.FindAllEntitiesByDesignerName<CWorld>("worldent").FirstOrDefault();
+                    if (worldEnt == null
+                        || !worldEnt.IsValid) return HookResult.Continue;
                     // play sound
-                    player.EmitSound(sound.Value.Path);
+                    worldEnt.EmitSound(sound.Value.Path);
                     // update cooldowns
                     _globalCooldown = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.GlobalCooldown;
                     if (_playerCooldowns.ContainsKey(player))

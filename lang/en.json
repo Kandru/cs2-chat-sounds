@@ -1,5 +1,0 @@
-{
-  "globalCooldownActive": " {silver}>> {default}You can play the next sound in {lime}{seconds}{default} seconds!",
-  "playerCooldownActive": " {silver}>> {default}You can play the next sound in {lime}{seconds}{default} seconds!",
-  "chatMenuTitle": " {silver}>> {default}Choose a sound to play:"
-}

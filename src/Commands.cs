@@ -2,6 +2,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Extensions;
+using CounterStrikeSharp.API.Modules.Menu;
 
 namespace ChatSounds
 {
@@ -11,16 +12,26 @@ namespace ChatSounds
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY, minArgs: 0, usage: "")]
         public void CommandSounds(CCSPlayerController player, CommandInfo command)
         {
+            // close any active menu
+            MenuManager.CloseActiveMenu(player);
+            // create menu to choose sound
+            var menu = new ChatMenu(Localizer["menu.title"]);
+            // check if player is muted
             if (Config.Muted.Contains(player.NetworkIDString))
             {
-                command.ReplyToCommand(Localizer["command.sounds.enabled"]);
+                menu.AddMenuOption(Localizer["menu.unmute"], (_, _) => ToggleMute(player));
             }
             else
             {
-                command.ReplyToCommand(Localizer["command.sounds.disabled"]);
-                Config.Muted.Add(player.NetworkIDString);
-                Config.Update();
+                menu.AddMenuOption(Localizer["menu.mute"], (_, _) => ToggleMute(player));
+                // add sounds to menu
+                foreach (var kvp in Config.Sounds)
+                {
+                    menu.AddMenuOption(kvp.Key, (_, _) => PlaySound(player, kvp.Key));
+                }
             }
+            // open menu
+            MenuManager.OpenChatMenu(player, menu);
         }
 
         [ConsoleCommand("chatsounds", "ChatSounds admin commands")]

@@ -41,5 +41,23 @@ namespace ChatSounds
             Config.Update();
             Console.WriteLine(Localizer["core.config"]);
         }
+
+        private bool ToggleMute(CCSPlayerController player)
+        {
+            if (Config.Muted.Contains(player.NetworkIDString))
+            {
+                Config.Muted.Remove(player.NetworkIDString);
+                Config.Update();
+                player.PrintToChat(Localizer["menu.unmuted"]);
+                return false;
+            }
+            else
+            {
+                Config.Muted.Add(player.NetworkIDString);
+                Config.Update();
+                player.PrintToChat(Localizer["menu.muted"]);
+                return true;
+            }
+        }
     }
 }

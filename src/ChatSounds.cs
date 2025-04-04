@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Events;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace ChatSounds
 {
@@ -39,27 +40,12 @@ namespace ChatSounds
                 || (_playerCooldowns.ContainsKey(player)
                     && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds())) return HookResult.Continue;
             // find sound to play
-            string text = @event.Text.ToLower();
             foreach (var sound in Config.Sounds)
-            {
-                if (text.Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
+                if (@event.Text.ToLower().Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    // get world entity
-                    CWorld? worldEnt = Utilities.FindAllEntitiesByDesignerName<CWorld>("worldent").FirstOrDefault();
-                    if (worldEnt == null
-                        || !worldEnt.IsValid) return HookResult.Continue;
-                    // play sound
-                    worldEnt.EmitSound(sound.Value.Path);
-                    // update cooldowns
-                    _globalCooldown = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.GlobalCooldown;
-                    if (_playerCooldowns.ContainsKey(player))
-                        _playerCooldowns[player] = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.PlayerCooldown;
-                    else
-                        _playerCooldowns.Add(player, DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.PlayerCooldown);
-                    // only play first sound found
+                    PlaySound(player, sound.Value.Path);
                     break;
                 }
-            }
             return HookResult.Continue;
         }
 
@@ -72,6 +58,31 @@ namespace ChatSounds
             // remove player from cooldowns if applicable
             _playerCooldowns.Remove(player);
             return HookResult.Continue;
+        }
+
+        private void PlaySound(CCSPlayerController player, string sound)
+        {
+            // get world entity
+            CWorld? worldEnt = Utilities.FindAllEntitiesByDesignerName<CWorld>("worldent").FirstOrDefault();
+            if (worldEnt == null
+                || !worldEnt.IsValid)
+            {
+                DebugPrint($"[ChatSounds] Could not find world entity to play sound {sound} for player {player.NetworkIDString}.");
+                return;
+            }
+            DebugPrint($"[ChatSounds] Playing sound {sound} for player {player.NetworkIDString}.");
+            // prepare recipient filter (to avoid playing sounds for muted players)
+            RecipientFilter filter = [];
+            foreach (var entry in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !Config.Muted.Contains(p.NetworkIDString)).ToList())
+                filter.Add(entry);
+            // play sound
+            worldEnt.EmitSound(sound, filter);
+            // update cooldowns
+            _globalCooldown = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.GlobalCooldown;
+            if (_playerCooldowns.ContainsKey(player))
+                _playerCooldowns[player] = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.PlayerCooldown;
+            else
+                _playerCooldowns.Add(player, DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.PlayerCooldown);
         }
     }
 }

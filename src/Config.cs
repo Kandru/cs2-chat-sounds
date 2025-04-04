@@ -48,14 +48,14 @@ namespace ChatSounds
             {
                 Config.Muted.Remove(player.NetworkIDString);
                 Config.Update();
-                player.PrintToChat(Localizer["menu.unmuted"]);
+                player.PrintToChat(Localizer["sounds.unmuted"]);
                 return false;
             }
             else
             {
                 Config.Muted.Add(player.NetworkIDString);
                 Config.Update();
-                player.PrintToChat(Localizer["menu.muted"]);
+                player.PrintToChat(Localizer["sounds.muted"]);
                 return true;
             }
         }

@@ -23,7 +23,7 @@ namespace ChatSounds
         // global cooldown for all players after playing a sound
         [JsonPropertyName("cooldown_global")] public int GlobalCooldown { get; set; } = 5;
         // info messages
-        [JsonPropertyName("messages")] public Dictionary<string, Sounds> Sounds { get; set; } = [];
+        [JsonPropertyName("sounds")] public Dictionary<string, Sounds> Sounds { get; set; } = [];
         // muted players
         [JsonPropertyName("muted")] public List<string> Muted { get; set; } = [];
     }

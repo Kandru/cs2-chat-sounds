@@ -36,7 +36,21 @@ namespace ChatSounds
             }
             else
             {
+                // add option to mute
                 menu.AddMenuOption(Localizer["menu.mute"], (_, _) => ToggleMute(player));
+                // show player where sound will be played
+                if (Config.PlayOnPlayer)
+                {
+                    menu.AddMenuOption(Localizer["menu.soundsplayedon.player"], (_, _) => { }, true);
+                }
+                else if (Config.PlayOnAllPlayers)
+                {
+                    menu.AddMenuOption(Localizer["menu.soundsplayedon.allplayers"], (_, _) => { }, true);
+                }
+                else
+                {
+                    menu.AddMenuOption(Localizer["menu.soundsplayedon.server"], (_, _) => { }, true);
+                }
                 // add sounds to menu
                 foreach (var kvp in Config.Sounds)
                 {

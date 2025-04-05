@@ -24,6 +24,8 @@ namespace ChatSounds
         [JsonPropertyName("cooldown_global")] public int GlobalCooldown { get; set; } = 5;
         // play sounds on player (else on all players else on world)
         [JsonPropertyName("play_on_player")] public bool PlayOnPlayer { get; set; } = true;
+        // play sounds on bots
+        [JsonPropertyName("play_on_bots")] public bool PlayOnBots { get; set; } = false;
         // play sounds on all players (else on world)
         [JsonPropertyName("play_on_all_players")] public bool PlayOnAllPlayers { get; set; } = false;
         // info messages

@@ -122,7 +122,7 @@ namespace ChatSounds
             {
                 foreach (var entry in Utilities.GetPlayers().Where(
                     p => p.IsValid
-                        && !p.IsBot
+                        && (!p.IsBot || Config.PlayOnBots)
                         && !Config.Muted.Contains(p.NetworkIDString)).ToList())
                     entry.EmitSound(sound, filter);
                 DebugPrint("[ChatSounds] Playing sound on all players.");

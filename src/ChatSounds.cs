@@ -33,17 +33,24 @@ namespace ChatSounds
                 || !player.IsValid
                 || player.IsBot
                 // skip if player is muted
-                || Config.Muted.Contains(player.NetworkIDString)
-                // skip if global cooldown is active
-                || _globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                // skip if player cooldown is active
-                || (_playerCooldowns.ContainsKey(player)
-                    && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds())) return HookResult.Continue;
+                || Config.Muted.Contains(player.NetworkIDString)) return HookResult.Continue;
             // find sound to play
             foreach (var sound in Config.Sounds)
                 if (@event.Text.ToLower().Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    PlaySound(player, sound.Value.Path);
+                    if (@event.Text.Split(' ').Length > 1)
+                    {
+                        if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            // skip if player cooldown is active
+                            || (_playerCooldowns.ContainsKey(player)
+                                && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+                            break;
+                        PlaySound(player, sound.Value.Path);
+                    }
+                    else
+                    {
+                        CheckPlaySound(player, sound.Value.Path);
+                    }
                     break;
                 }
             return HookResult.Continue;

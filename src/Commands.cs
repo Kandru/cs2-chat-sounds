@@ -55,7 +55,7 @@ namespace ChatSounds
                 // add sounds to menu
                 foreach (var kvp in Config.Sounds)
                 {
-                    menu.AddMenuOption(kvp.Key, (_, _) => CheckPlaySound(player, kvp.Key));
+                    menu.AddMenuOption(kvp.Key, (_, _) => CheckPlaySound(player, kvp.Value.Path));
                 }
             }
             // open menu

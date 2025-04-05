@@ -73,19 +73,32 @@ namespace ChatSounds
                 || (_playerCooldowns.ContainsKey(player)
                 && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
             {
-                player.PrintToChat(Localizer["command.sounds.cooldown"].Value
-                    .Replace("{seconds}", Math.Max(
-                        _globalCooldown - DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                        _playerCooldowns.ContainsKey(player)
-                            ? _playerCooldowns[player] - DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                            : 0
-                    ).ToString()));
+                Server.NextFrame(() =>
+                {
+                    if (player == null
+                        || !player.IsValid) return;
+                    player.PrintToChat(Localizer["command.sounds.cooldown"].Value
+                        .Replace("{seconds}", Math.Max(
+                            _globalCooldown - DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                            _playerCooldowns.ContainsKey(player)
+                                ? _playerCooldowns[player] - DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                                : 0
+                        ).ToString()));
+                });
             }
             else
             {
-                Server.PrintToChatAll(Localizer["command.sounds.played"].Value
-                    .Replace("{player}", player.PlayerName)
-                    .Replace("{sound}", sound));
+                Server.NextFrame(() =>
+                {
+                    if (player == null
+                        || !player.IsValid) return;
+                    Server.PrintToChatAll(Localizer["command.sounds.played"].Value
+                        .Replace("{player}", player.PlayerName)
+                        .Replace("{sound}", sound.Contains('.')
+                            ? sound.Split('.').Last()
+                            : sound));
+                });
+
                 PlaySound(player, sound);
             }
         }

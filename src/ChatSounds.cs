@@ -76,6 +76,9 @@ namespace ChatSounds
             }
             else
             {
+                Server.PrintToChatAll(Localizer["command.sounds.played"].Value
+                    .Replace("{player}", player.PlayerName)
+                    .Replace("{sound}", sound));
                 PlaySound(player, sound);
             }
         }

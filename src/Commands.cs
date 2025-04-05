@@ -21,13 +21,26 @@ namespace ChatSounds
             {
                 menu.AddMenuOption(Localizer["menu.unmute"], (_, _) => ToggleMute(player));
             }
+            // check if player is on cooldown
+            else if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                || (_playerCooldowns.ContainsKey(player)
+                && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+            {
+                menu.AddMenuOption(Localizer["menu.cooldown"].Value
+                    .Replace("{seconds}", Math.Max(
+                        _globalCooldown - DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        _playerCooldowns.ContainsKey(player)
+                            ? _playerCooldowns[player] - DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            : 0
+                    ).ToString()), (_, _) => { }, true);
+            }
             else
             {
                 menu.AddMenuOption(Localizer["menu.mute"], (_, _) => ToggleMute(player));
                 // add sounds to menu
                 foreach (var kvp in Config.Sounds)
                 {
-                    menu.AddMenuOption(kvp.Key, (_, _) => PlaySound(player, kvp.Key));
+                    menu.AddMenuOption(kvp.Key, (_, _) => CheckPlaySound(player, kvp.Key));
                 }
             }
             // open menu

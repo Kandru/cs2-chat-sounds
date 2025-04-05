@@ -60,6 +60,26 @@ namespace ChatSounds
             return HookResult.Continue;
         }
 
+        private void CheckPlaySound(CCSPlayerController player, string sound)
+        {
+            if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                || (_playerCooldowns.ContainsKey(player)
+                && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+            {
+                player.PrintToChat(Localizer["command.sounds.cooldown"].Value
+                    .Replace("{seconds}", Math.Max(
+                        _globalCooldown - DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        _playerCooldowns.ContainsKey(player)
+                            ? _playerCooldowns[player] - DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            : 0
+                    ).ToString()));
+            }
+            else
+            {
+                PlaySound(player, sound);
+            }
+        }
+
         private void PlaySound(CCSPlayerController player, string sound)
         {
             DebugPrint($"[ChatSounds] Playing sound {sound} for player {player.PlayerName}.");

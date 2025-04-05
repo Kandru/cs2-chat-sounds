@@ -60,23 +60,67 @@ namespace ChatSounds
             return HookResult.Continue;
         }
 
+        private void CheckPlaySound(CCSPlayerController player, string sound)
+        {
+            if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                || (_playerCooldowns.ContainsKey(player)
+                && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+            {
+                player.PrintToChat(Localizer["command.sounds.cooldown"].Value
+                    .Replace("{seconds}", Math.Max(
+                        _globalCooldown - DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        _playerCooldowns.ContainsKey(player)
+                            ? _playerCooldowns[player] - DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            : 0
+                    ).ToString()));
+            }
+            else
+            {
+                Server.PrintToChatAll(Localizer["command.sounds.played"].Value
+                    .Replace("{player}", player.PlayerName)
+                    .Replace("{sound}", sound));
+                PlaySound(player, sound);
+            }
+        }
+
         private void PlaySound(CCSPlayerController player, string sound)
         {
-            // get world entity
-            CWorld? worldEnt = Utilities.FindAllEntitiesByDesignerName<CWorld>("worldent").FirstOrDefault();
-            if (worldEnt == null
-                || !worldEnt.IsValid)
-            {
-                DebugPrint($"[ChatSounds] Could not find world entity to play sound {sound} for player {player.NetworkIDString}.");
-                return;
-            }
-            DebugPrint($"[ChatSounds] Playing sound {sound} for player {player.NetworkIDString}.");
+            DebugPrint($"[ChatSounds] Playing sound {sound} for player {player.PlayerName}.");
             // prepare recipient filter (to avoid playing sounds for muted players)
             RecipientFilter filter = [];
-            foreach (var entry in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !Config.Muted.Contains(p.NetworkIDString)).ToList())
+            foreach (var entry in Utilities.GetPlayers().Where(
+                p => p.IsValid
+                    && !p.IsBot
+                    && !Config.Muted.Contains(p.NetworkIDString)).ToList())
                 filter.Add(entry);
-            // play sound
-            worldEnt.EmitSound(sound, filter);
+            if (Config.PlayOnPlayer && player.PawnIsAlive)
+            {
+                player.EmitSound(sound, filter);
+                DebugPrint("[ChatSounds] Playing sound on player.");
+            }
+            else if (Config.PlayOnAllPlayers && player.PawnIsAlive)
+            {
+                foreach (var entry in Utilities.GetPlayers().Where(
+                    p => p.IsValid
+                        && !p.IsBot
+                        && !Config.Muted.Contains(p.NetworkIDString)).ToList())
+                    entry.EmitSound(sound, filter);
+                DebugPrint("[ChatSounds] Playing sound on all players.");
+            }
+            else
+            {
+                // get world entity
+                CWorld? worldEnt = Utilities.FindAllEntitiesByDesignerName<CWorld>("worldent").FirstOrDefault();
+                if (worldEnt == null
+                    || !worldEnt.IsValid)
+                {
+                    DebugPrint("[ChatSounds] Could not find world entity.");
+                    return;
+                }
+                DebugPrint("[ChatSounds] Playing sound on world entity.");
+                // play sound
+                worldEnt.EmitSound(sound, filter);
+            }
             // update cooldowns
             _globalCooldown = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + Config.GlobalCooldown;
             if (_playerCooldowns.ContainsKey(player))

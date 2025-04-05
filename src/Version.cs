@@ -2,6 +2,6 @@ namespace ChatSounds
 {
     public partial class ChatSounds
     {
-        public override string ModuleVersion => "0.0.3";
+        public override string ModuleVersion => "0.0.5";
     }
 }

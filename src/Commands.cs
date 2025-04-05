@@ -8,6 +8,7 @@ namespace ChatSounds
 {
     public partial class ChatSounds
     {
+        [ConsoleCommand("s", "ChatSounds")]
         [ConsoleCommand("sounds", "ChatSounds")]
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY, minArgs: 0, usage: "")]
         public void CommandSounds(CCSPlayerController player, CommandInfo command)

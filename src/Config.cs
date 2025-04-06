@@ -28,8 +28,8 @@ namespace ChatSounds
         [JsonPropertyName("play_on_bots")] public bool PlayOnBots { get; set; } = false;
         // play sounds on all players (else on world)
         [JsonPropertyName("play_on_all_players")] public bool PlayOnAllPlayers { get; set; } = false;
-        // info messages
-        [JsonPropertyName("sounds")] public Dictionary<string, Sounds> Sounds { get; set; } = [];
+        // sounds dict (language, string to match, sound path)
+        [JsonPropertyName("sounds")] public Dictionary<string, Dictionary<string, Sounds>> Sounds { get; set; } = [];
         // muted players
         [JsonPropertyName("muted")] public List<string> Muted { get; set; } = [];
     }
@@ -42,7 +42,12 @@ namespace ChatSounds
         {
             Config = config;
             // sort sounds by key
-            Config.Sounds = Config.Sounds.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+            Config.Sounds = Config.Sounds
+                .OrderBy(x => x.Key)
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value.OrderBy(y => y.Key).ToDictionary(y => y.Key, y => y.Value)
+                );
             // update config and write new values from plugin to config file if changed after update
             Config.Update();
             Console.WriteLine(Localizer["core.config"]);

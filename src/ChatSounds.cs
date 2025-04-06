@@ -1,7 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Events;
+using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Utils;
+using System.Globalization;
 
 namespace ChatSounds
 {
@@ -10,6 +13,7 @@ namespace ChatSounds
         public override string ModuleName => "CS2 ChatSounds";
         public override string ModuleAuthor => "Kalle <kalle@kandru.de>";
 
+        private readonly PlayerLanguageManager playerLanguageManager = new();
         private Dictionary<CCSPlayerController, long> _playerCooldowns = [];
         private long _globalCooldown = 0L;
 
@@ -31,28 +35,41 @@ namespace ChatSounds
             if (!Config.Enabled
                 || player == null
                 || !player.IsValid
-                || player.IsBot
-                // skip if player is muted
-                || Config.Muted.Contains(player.NetworkIDString)) return HookResult.Continue;
+                || player.IsBot) return HookResult.Continue;
+            // check if player changed language
+            if (@event.Text.StartsWith("!lang", StringComparison.OrdinalIgnoreCase))
+            {
+                // get language from command instead of player because it defaults to english all the time Oo
+                string? language = @event.Text.Split(' ').Skip(1).FirstOrDefault()?.Trim();
+                if (language == null
+                    || !CultureInfo.GetCultures(CultureTypes.AllCultures).Any(c => c.Name.Equals(language, StringComparison.OrdinalIgnoreCase)))
+                    return HookResult.Continue;
+                // set language for player
+                playerLanguageManager.SetLanguage(new SteamID(player.SteamID), new CultureInfo(language));
+                return HookResult.Continue;
+            }
+            // skip if player is muted
+            if (Config.Muted.Contains(player.NetworkIDString)) return HookResult.Continue;
             // find sound to play
-            foreach (var sound in Config.Sounds)
-                if (@event.Text.ToLower().Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    if (@event.Text.Split(' ').Length > 1)
+            foreach (var kvp in Config.Sounds)
+                foreach (var sound in Config.Sounds[kvp.Key])
+                    if (@event.Text.ToLower().Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                            // skip if player cooldown is active
-                            || (_playerCooldowns.ContainsKey(player)
-                                && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
-                            break;
-                        PlaySound(player, sound.Value.Path);
+                        if (@event.Text.Split(' ').Length > 1)
+                        {
+                            if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                                // skip if player cooldown is active
+                                || (_playerCooldowns.ContainsKey(player)
+                                    && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+                                break;
+                            PlaySound(player, sound.Value.Path);
+                        }
+                        else
+                        {
+                            CheckPlaySound(player, sound.Value.Path);
+                        }
+                        break;
                     }
-                    else
-                    {
-                        CheckPlaySound(player, sound.Value.Path);
-                    }
-                    break;
-                }
             return HookResult.Continue;
         }
 

@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Extensions;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -52,10 +53,16 @@ namespace ChatSounds
                 {
                     menu.AddMenuOption(Localizer["menu.soundsplayedon.server"], (_, _) => { }, true);
                 }
+                // determine player language or fallback
+                string lang = Config.Sounds.ContainsKey(playerLanguageManager.GetLanguage(new SteamID(player.SteamID)).TwoLetterISOLanguageName)
+                    ? playerLanguageManager.GetLanguage(new SteamID(player.SteamID)).TwoLetterISOLanguageName
+                    : Config.Sounds.ContainsKey(CoreConfig.ServerLanguage)
+                        ? CoreConfig.ServerLanguage
+                        : Config.Sounds.Keys.First();
                 // add sounds to menu
-                foreach (var kvp in Config.Sounds)
+                foreach (var (soundName, soundData) in Config.Sounds[lang])
                 {
-                    menu.AddMenuOption(kvp.Key, (_, _) => CheckPlaySound(player, kvp.Value.Path));
+                    menu.AddMenuOption(soundName, (_, _) => CheckPlaySound(player, soundData.Path));
                 }
             }
             // open menu

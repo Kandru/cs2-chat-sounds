@@ -22,8 +22,49 @@ Updating is even easier: simply overwrite all plugin files and they will be relo
 This plugin automatically creates a readable JSON configuration file. This configuration file can be found in `/addons/counterstrikesharp/configs/plugins/ChatSounds/ChatSounds.json`.
 
 ```json
-
+{
+  "enabled": true,
+  "debug": true,
+  "cooldown_player": 0,
+  "cooldown_global": 5,
+  "play_on_player": true,
+  "play_on_bots": false,
+  "play_on_all_players": false,
+  "sounds": {
+    "de": {
+      "1hp": {
+        "path": "Saysound.1hp",
+        "length": 0
+      },
+      "abgefahren": {
+        "path": "Saysound.Abgefahren",
+        "length": 0
+      },
+      "amerika": {
+        "path": "Saysound.America",
+        "length": 0
+      }
+    },
+    "en": {
+      "1hp": {
+        "path": "Saysound.1hp",
+        "length": 0
+      },
+      "america": {
+        "path": "Saysound.America",
+        "length": 0
+      }
+  },
+  "muted": [
+    "[U:1:33290010]"
+  ],
+  "ConfigVersion": 1
+}
 ```
+
+Sounds need to be categorized per language. If the player language is not found (and also not the server language) the first found language of the *sounds* dictionary will be used. This dictionary automatically sorts by alphabetically order to allow easier changes to the sound list. This will happen automatically each time the plugin gets loaded.
+
+Sounds need to be inside an workshop addon sound definition file. Otherwise only default sounds from the cs2 internal sound definition files are possible to use.
 
 ## Commands
 

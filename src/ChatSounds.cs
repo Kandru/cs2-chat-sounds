@@ -45,6 +45,7 @@ namespace ChatSounds
                     || !CultureInfo.GetCultures(CultureTypes.AllCultures).Any(c => c.Name.Equals(language, StringComparison.OrdinalIgnoreCase)))
                     return HookResult.Continue;
                 // set language for player
+                DebugPrint($"Setting language for player {player.PlayerName} to {language}.");
                 playerLanguageManager.SetLanguage(new SteamID(player.SteamID), new CultureInfo(language));
                 return HookResult.Continue;
             }
@@ -120,7 +121,7 @@ namespace ChatSounds
 
         private void PlaySound(CCSPlayerController player, string sound)
         {
-            DebugPrint($"[ChatSounds] Playing sound {sound} for player {player.PlayerName}.");
+            DebugPrint($"Playing sound {sound} for player {player.PlayerName}.");
             // prepare recipient filter (to avoid playing sounds for muted players)
             RecipientFilter filter = [];
             foreach (var entry in Utilities.GetPlayers().Where(
@@ -131,7 +132,7 @@ namespace ChatSounds
             if (Config.PlayOnPlayer && player.PawnIsAlive)
             {
                 player.EmitSound(sound, filter);
-                DebugPrint("[ChatSounds] Playing sound on player.");
+                DebugPrint("Playing sound on player.");
             }
             else if (Config.PlayOnAllPlayers && player.PawnIsAlive)
             {
@@ -140,7 +141,7 @@ namespace ChatSounds
                         && (!p.IsBot || Config.PlayOnBots)
                         && !Config.Muted.Contains(p.NetworkIDString)).ToList())
                     entry.EmitSound(sound, filter);
-                DebugPrint("[ChatSounds] Playing sound on all players.");
+                DebugPrint("Playing sound on all players.");
             }
             else
             {
@@ -149,10 +150,10 @@ namespace ChatSounds
                 if (worldEnt == null
                     || !worldEnt.IsValid)
                 {
-                    DebugPrint("[ChatSounds] Could not find world entity.");
+                    DebugPrint("Could not find world entity.");
                     return;
                 }
-                DebugPrint("[ChatSounds] Playing sound on world entity.");
+                DebugPrint("Playing sound on world entity.");
                 // play sound
                 worldEnt.EmitSound(sound, filter);
             }

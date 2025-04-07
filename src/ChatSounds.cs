@@ -66,7 +66,7 @@ namespace ChatSounds
                         }
                         else
                         {
-                            CheckPlaySound(player, sound.Value.Path);
+                            CheckPlaySound(player, sound.Key, sound.Value.Path);
                         }
                         break;
                     }
@@ -84,7 +84,7 @@ namespace ChatSounds
             return HookResult.Continue;
         }
 
-        private void CheckPlaySound(CCSPlayerController player, string sound)
+        private void CheckPlaySound(CCSPlayerController player, string command, string sound)
         {
             if (_globalCooldown >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 || (_playerCooldowns.ContainsKey(player)
@@ -111,9 +111,7 @@ namespace ChatSounds
                         || !player.IsValid) return;
                     Server.PrintToChatAll(Localizer["command.sounds.played"].Value
                         .Replace("{player}", player.PlayerName)
-                        .Replace("{sound}", sound.Contains('.')
-                            ? sound.Split('.').Last()
-                            : sound));
+                        .Replace("{sound}", command));
                 });
 
                 PlaySound(player, sound);

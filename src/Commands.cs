@@ -62,7 +62,7 @@ namespace ChatSounds
                 // add sounds to menu
                 foreach (var (soundName, soundData) in Config.Sounds[lang])
                 {
-                    menu.AddMenuOption(soundName, (_, _) => CheckPlaySound(player, soundData.Path));
+                    menu.AddMenuOption(soundName, (_, _) => CheckPlaySound(player, soundName, soundData.Path));
                 }
             }
             // open menu

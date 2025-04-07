@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace ChatSounds
 {
@@ -54,7 +55,7 @@ namespace ChatSounds
             // find sound to play
             foreach (var kvp in Config.Sounds)
                 foreach (var sound in Config.Sounds[kvp.Key])
-                    if (@event.Text.ToLower().Contains(sound.Key, StringComparison.CurrentCultureIgnoreCase))
+                    if (Regex.IsMatch(@event.Text, $@"\b{Regex.Escape(sound.Key)}\b", RegexOptions.IgnoreCase))
                     {
                         if (@event.Text.Split(' ').Length > 1)
                         {

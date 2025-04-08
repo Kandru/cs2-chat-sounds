@@ -50,7 +50,6 @@ namespace ChatSounds
                 playerLanguageManager.SetLanguage(new SteamID(player.SteamID), new CultureInfo(language));
                 return HookResult.Continue;
             }
-            if (@event.Text.ToLower().Contains("chatsounds")) return HookResult.Continue;
             // skip if player is muted
             if (Config.Muted.Contains(player.NetworkIDString)) return HookResult.Continue;
             // find sound to play
@@ -64,14 +63,14 @@ namespace ChatSounds
                                 // skip if player cooldown is active
                                 || (_playerCooldowns.ContainsKey(player)
                                     && _playerCooldowns[player] >= DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
-                                break;
+                                return HookResult.Continue;
                             PlaySound(player, sound.Value.Path);
                         }
                         else
                         {
                             CheckPlaySound(player, sound.Key, sound.Value.Path);
                         }
-                        break;
+                        return HookResult.Continue;
                     }
             return HookResult.Continue;
         }

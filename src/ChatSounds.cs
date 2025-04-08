@@ -50,6 +50,7 @@ namespace ChatSounds
                 playerLanguageManager.SetLanguage(new SteamID(player.SteamID), new CultureInfo(language));
                 return HookResult.Continue;
             }
+            if (@event.Text.ToLower().Contains("chatsounds")) return HookResult.Continue;
             // skip if player is muted
             if (Config.Muted.Contains(player.NetworkIDString)) return HookResult.Continue;
             // find sound to play

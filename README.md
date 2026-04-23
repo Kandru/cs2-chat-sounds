@@ -12,6 +12,8 @@ This will play the given chat sounds whenever a player types something into the 
 
 1. Download and extract the latest release from the [GitHub releases page](https://github.com/Kandru/cs2-chat-sounds/releases/).
 2. Move the "ChatSounds" folder to the `/addons/counterstrikesharp/plugins/` directory.
+3.  **Install Dependencies**: Download and install [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager). This is required to ensure players download the sound files.
+4.  **Add Sounds**: Configure MultiAddonManager to include a workshop addon you generated.
 3. Restart the server.
 
 Updating is even easier: simply overwrite all plugin files and they will be reloaded automatically. To automate updates please use our [CS2 Update Manager](https://github.com/Kandru/cs2-update-manager/).
